@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+
+{% block title %}Providers{% endblock %}
+
+{% block heading %}Providers{% endblock %}
+
+{% block additional_styles %}
+<style>
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+    th, td {
+        padding: 10px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+    }
+    th {
+        background-color: #f2f2f2;
+    }
+    .action-buttons {
+        margin-bottom: 20px;
+    }
+    .btn {
+        padding: 10px 15px;
+        background-color: #f0f0f0;
+        text-decoration: none;
+        color: #333;
+        border-radius: 4px;
+        margin-right: 10px;
+    }
+    .btn:hover {
+        background-color: #e0e0e0;
+    }
+    .action-link {
+        padding: 5px 10px;
+        background-color: #4CAF50;
+        color: white;
+        text-decoration: none;
+        border-radius: 4px;
+        margin-right: 5px;
+    }
+    .action-link:hover {
+        background-color: #45a049;
+    }
+    .action-button {
+        padding: 5px 10px;
+        background-color: #f44336;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+    .action-button:hover {
+        background-color: #da190b;
+    }
+    .generate-contract {
+        background-color: #2196F3;
+    }
+    .generate-contract:hover {
+        background-color: #0b7dda;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="action-buttons">
+    <a href="{{ url_for('provider.create_provider') }}" class="btn">Add Basic Provider</a>
+    <a href="{{ url_for('provider.create_provider_with_contacts') }}" class="btn">Add Provider with Contacts</a>
+</div>
+<table>
+    <tr>
+        <th>Name</th>
+        <th>NPI</th>
+        <th>Specialty</th>
+        <th>Status</th>
+        <th>Actions</th>
+    </tr>
+    {% for p in providers %}
+    <tr>
+        <td>{{ p.name }}</td>
+        <td>{{ p.npi }}</td>
+        <td>{{ p.specialty }}</td>
+        <td>{{ p.status }}</td>
+        <td>
+            <a href="{{ url_for('provider.edit_provider', provider_id=p.id) }}" class="action-link">Edit</a>
+            <form method="POST" action="{{ url_for('provider.delete_provider', provider_id=p.id) }}" style="display:inline;">
+                <button type="submit" onclick="return confirm('Delete provider?')" class="action-button">Delete</button>
+            </form>
+            <form method="POST" action="{{ url_for('intake.generate_contract_route', provider_id=p.id) }}" style="display:inline;">
+                <button type="submit" class="action-link generate-contract">Generate Contract</button>
+            </form>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %} 
