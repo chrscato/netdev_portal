@@ -62,9 +62,18 @@ def create_provider_with_contacts():
             npi=request.form["npi"],
             specialty=request.form["specialty"],
             status=request.form["status"],
-            rate_type=request.form["rate_type"],
-            wcfs_percentage=request.form.get("wcfs_percentage") or None
+            rate_type=request.form["rate_type"]
         )
+
+        # Handle WCFS percentages if rate_type is 'wcfs'
+        if request.form["rate_type"] == "wcfs":
+            wcfs_percentages = {}
+            for key, value in request.form.items():
+                if key.startswith("wcfs_") and value:
+                    category = key[5:]  # Remove 'wcfs_' prefix
+                    wcfs_percentages[category] = float(value)
+            provider.wcfs_percentages_dict = wcfs_percentages
+
         db.session.add(provider)
         db.session.commit()
 
