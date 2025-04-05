@@ -11,22 +11,6 @@ def list_providers():
     providers = Provider.query.all()
     return render_template("providers/list.html", providers=providers)
 
-@provider_bp.route("/new", methods=["GET", "POST"])
-def create_provider():
-    if request.method == "POST":
-        new_provider = Provider(
-            id=str(uuid.uuid4()),
-            name=request.form["name"],
-            npi=request.form["npi"],
-            specialty=request.form["specialty"],
-            status=request.form["status"]
-        )
-        db.session.add(new_provider)
-        db.session.commit()
-        flash("Provider created successfully!")
-        return redirect(url_for("provider.list_providers"))
-    return render_template("providers/form.html", provider=None)
-
 @provider_bp.route("/<provider_id>/edit", methods=["GET", "POST"])
 def edit_provider(provider_id):
     provider = Provider.query.get_or_404(provider_id)
@@ -38,7 +22,7 @@ def edit_provider(provider_id):
         db.session.commit()
         flash("Provider updated successfully!")
         return redirect(url_for("provider.list_providers"))
-    return render_template("providers/form.html", provider=provider)
+    return render_template("providers/new_with_contacts.html", provider=provider)
 
 @provider_bp.route("/<provider_id>/delete", methods=["POST"])
 def delete_provider(provider_id):
@@ -61,18 +45,8 @@ def create_provider_with_contacts():
             states_in_contract=request.form["states"],
             npi=request.form["npi"],
             specialty=request.form["specialty"],
-            status=request.form["status"],
-            rate_type=request.form["rate_type"]
+            status=request.form["status"]
         )
-
-        # Handle WCFS percentages if rate_type is 'wcfs'
-        if request.form["rate_type"] == "wcfs":
-            wcfs_percentages = {}
-            for key, value in request.form.items():
-                if key.startswith("wcfs_") and value:
-                    category = key[5:]  # Remove 'wcfs_' prefix
-                    wcfs_percentages[category] = float(value)
-            provider.wcfs_percentages_dict = wcfs_percentages
 
         db.session.add(provider)
         db.session.commit()

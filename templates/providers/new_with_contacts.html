@@ -118,57 +118,6 @@
                     <option value="inactive">Inactive</option>
                 </select>
             </div>
-            
-            <div class="section">
-                <h3>Rate Structure</h3>
-                <label>Rate Type:</label>
-                <select name="rate_type" onchange="document.getElementById('wcfs_section').style.display = this.value == 'wcfs' ? 'block' : 'none';">
-                    <option value="standard">Standard Rates</option>
-                    <option value="wcfs">% of WCFS</option>
-                </select>
-                
-                <div id="wcfs_section" style="display:none;">
-                    <label>WCFS Percentages per Category:</label>
-                    <table>
-                        <tr>
-                            <th>Category</th>
-                            <th>WCFS Percentage</th>
-                        </tr>
-                        <tr>
-                            <td>MRI w/o</td>
-                            <td><input type="number" name="wcfs_MRI w/o" step="0.01" min="0" max="100" placeholder="%"></td>
-                        </tr>
-                        <tr>
-                            <td>MRI w/</td>
-                            <td><input type="number" name="wcfs_MRI w/" step="0.01" min="0" max="100" placeholder="%"></td>
-                        </tr>
-                        <tr>
-                            <td>MRI w/ & w/o</td>
-                            <td><input type="number" name="wcfs_MRI w/ & w/o" step="0.01" min="0" max="100" placeholder="%"></td>
-                        </tr>
-                        <tr>
-                            <td>CT w/o</td>
-                            <td><input type="number" name="wcfs_CT w/o" step="0.01" min="0" max="100" placeholder="%"></td>
-                        </tr>
-                        <tr>
-                            <td>CT w/</td>
-                            <td><input type="number" name="wcfs_CT w/" step="0.01" min="0" max="100" placeholder="%"></td>
-                        </tr>
-                        <tr>
-                            <td>CT w/ & w/o</td>
-                            <td><input type="number" name="wcfs_CT w/ & w/o" step="0.01" min="0" max="100" placeholder="%"></td>
-                        </tr>
-                        <tr>
-                            <td>XRAY</td>
-                            <td><input type="number" name="wcfs_XRAY" step="0.01" min="0" max="100" placeholder="%"></td>
-                        </tr>
-                        <tr>
-                            <td>Arthrograms</td>
-                            <td><input type="number" name="wcfs_Arthrograms" step="0.01" min="0" max="100" placeholder="%"></td>
-                        </tr>
-                    </table>
-                </div>
-            </div>
         </div>
         
         <div class="contacts-form">

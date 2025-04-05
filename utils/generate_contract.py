@@ -64,12 +64,22 @@ def get_rates_by_method(provider_id, method, custom_rates=None, wcfs_percentages
     
     rates = {}
     
+    # Map form field names to category names
+    category_mapping = {
+        'mri_without': 'MRI w/o',
+        'mri_with': 'MRI w/',
+        'mri_both': 'MRI w/ & w/o',
+        'ct_without': 'CT w/o',
+        'ct_with': 'CT w/',
+        'ct_both': 'CT w/ & w/o',
+        'xray': 'XRAY',
+        'arthrogram': 'Arthrograms'
+    }
+    
     if method == 'standard':
-        # Get rates from standard_rates table for each state and category
+        # Get rates from standard_rates table for each category
+        state = states[0]  # Use first state's rates
         for category in IMAGING_CATEGORIES:
-            # For simplicity, we'll use the first state's rates
-            # In a real implementation, you might want to handle multiple states differently
-            state = states[0]
             standard_rate = StandardRates.query.filter_by(
                 state=state,
                 category=category
@@ -86,24 +96,23 @@ def get_rates_by_method(provider_id, method, custom_rates=None, wcfs_percentages
         if not wcfs_percentages:
             raise ValueError("WCFS percentages must be provided for WCFS method")
         
-        for category in IMAGING_CATEGORIES:
-            if category in wcfs_percentages:
-                # Get the base rate from standard rates or default
-                base_rate = IMAGING_RATES.get(category, 0)
-                # Apply the WCFS percentage
-                rates[category] = round(base_rate * (wcfs_percentages[category] / 100), 2)
+        # Store the WCFS percentages in the rates dictionary
+        for form_field, category in category_mapping.items():
+            if form_field in wcfs_percentages:
+                # Store the percentage as an integer
+                rates[category] = int(wcfs_percentages[form_field])
             else:
-                # Use default rate if no percentage provided
-                rates[category] = IMAGING_RATES.get(category, 0)
+                # Use 0 if no percentage provided
+                rates[category] = 0
     
     elif method == 'custom':
         # Use custom rates provided by the user
         if not custom_rates:
             raise ValueError("Custom rates must be provided for custom method")
         
-        for category in IMAGING_CATEGORIES:
-            if category in custom_rates:
-                rates[category] = custom_rates[category]
+        for form_field, category in category_mapping.items():
+            if form_field in custom_rates:
+                rates[category] = custom_rates[form_field]
             else:
                 # Use default rate if no custom rate provided
                 rates[category] = IMAGING_RATES.get(category, 0)
@@ -155,10 +164,11 @@ def create_rates_table(doc, states, rates, method='standard', wcfs_percentages=N
                     tcPr.append(element)
             
             row_cells[0].text = state
-            row_cells[1].text = procedure.replace("_", " ")
+            row_cells[1].text = procedure
             
-            if method == 'wcfs' and wcfs_percentages:
-                percentage = wcfs_percentages.get(procedure, 0)
+            if method == 'wcfs':
+                # Get the percentage from the rates dictionary
+                percentage = rates.get(procedure, 0)
                 row_cells[2].text = f"{percentage}% of WCFS"
             else:
                 rate = rates.get(procedure, 0)
@@ -188,8 +198,14 @@ def generate_contract(provider_id, method='standard', custom_rates=None, wcfs_pe
     # Create output paths
     output_folder = "contracts"
     os.makedirs(output_folder, exist_ok=True)
-    docx_path = os.path.join(output_folder, f"contract_{provider_id}.docx")
-    pdf_path = docx_path.replace(".docx", ".pdf")
+    
+    # Create filename using DBA name or provider name if DBA is not available
+    filename = f"{provider.dba_name or provider.name}_Agreement"
+    # Replace any characters that might be invalid in filenames
+    filename = "".join(c for c in filename if c.isalnum() or c in (' ', '-', '_')).strip()
+    
+    docx_path = os.path.join(output_folder, f"{filename}.docx")
+    pdf_path = os.path.join(output_folder, f"{filename}.pdf")
 
     # Create a copy of the template for this contract
     shutil.copy2(template_path, docx_path)

@@ -1,4 +1,5 @@
 from flask import Flask, render_template
+from flask_migrate import Migrate
 from config import Config
 from models import db
 from models import provider, contact, outreach
@@ -11,6 +12,7 @@ app = Flask(__name__)
 app.config.from_object(Config)
 app.secret_key = app.config['SECRET_KEY']
 db.init_app(app)
+migrate = Migrate(app, db)
 
 app.register_blueprint(provider_bp)
 app.register_blueprint(contact_bp)
